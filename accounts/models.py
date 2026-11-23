@@ -1,5 +1,8 @@
 from django.db import models
+
 from django.contrib.auth.models import AbstractUser
+
+from django.core.mail import send_mail
 # Create your models here.
 
 class User(AbstractUser):
@@ -40,4 +43,50 @@ class TrainerProfile(models.Model):
     profile_image = models.ImageField(upload_to="trainer",null=True)
 
     trainer = models.OneToOneField(User,on_delete=models.CASCADE,related_name="trainer")
+
+from django.db.models.signals import post_save
+
+def create_student_profile(sender,instance,created,**kwargs):
+
+    if created and instance.role == "student":
+
+        StudentProfile.objects.create(student = instance)
+
+post_save.connect(create_student_profile,sender=User)
+
+
+def create_trainer_profile(sender,instance,created,**kwargs):
+
+    if created and instance.role == "trainer":
+
+        TrainerProfile.objects.create(trainer = instance)
+
+post_save.connect(create_trainer_profile,sender=User)
+
+
+
+def send_invitaion_mail(sender,instance,created,*args,**kwargs):
+
+    if created and instance.role == "student":
+
+        send_mail(
+        'Account Creation Confirmation',
+        'you have succesfully created a student account in LMS system.',
+        'aswathik655@gmail.com',
+        ['aswathisunil006@gmail.com'],
+    )
+
+    elif created and instance.role == "trainer":
+
+        send_mail(
+        'Account Creation Confirmation',
+        'you have succesfully created a trainer account in LMS system.',
+        'aswathik655@gmail.com',
+        ['aswathisunil006@gmail.com'],
+    )
+
+post_save.connect(send_invitaion_mail,sender=User)
+
+
+
 
