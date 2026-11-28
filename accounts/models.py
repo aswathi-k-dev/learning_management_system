@@ -44,6 +44,7 @@ class TrainerProfile(models.Model):
 
     trainer = models.OneToOneField(User,on_delete=models.CASCADE,related_name="trainer")
 
+
 from django.db.models.signals import post_save
 
 def create_student_profile(sender,instance,created,**kwargs):
